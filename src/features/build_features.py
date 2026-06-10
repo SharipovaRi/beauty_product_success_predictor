@@ -7,7 +7,7 @@ BASE_DIR = Path(__file__).resolve().parents[2]
 INPUT_PATH = BASE_DIR / "data" / "processed" / "beauty_products_clean.csv"
 OUTPUT_PATH = BASE_DIR / "data" / "processed" / "beauty_products_features.csv"
 
-# Popular ingredients for the skincare product category, based on common trends and consumer interest.
+# Popular beauty/skincare ingredients based on common product claims and consumer interest.
 POPULAR_INGREDIENTS = [
     "niacinamide",
     "retinol",
@@ -76,7 +76,8 @@ def main():
         .apply(lambda x: len([item.strip() for item in str(x).split(",") if item.strip()]))
     )
 
-    # Length of product name, ingredients text, and highlights text since sometimes ricker descriptions of the product correlate with product positioning and success.
+    # Length of product name, ingredients text, and highlights text.
+    # Richer product descriptions may capture stronger product positioning.
     df["product_name_length"] = df["product_name"].fillna("").apply(len)
     df["ingredients_text_length"] = df["ingredients"].fillna("").apply(len)
     df["highlights_text_length"] = df["highlights"].fillna("").apply(len)
@@ -93,7 +94,7 @@ def main():
     )
 
     df["discount_pct"] = np.where(
-        df["sale_price_usd"] > 0,
+        (df["sale_price_usd"] > 0) & (df["price_usd"] > 0),
         df["discount_amount"] / df["price_usd"],
         0,
     )
