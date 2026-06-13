@@ -1,4 +1,5 @@
 # AI Beauty Product Success Predictor
+![Status](https://img.shields.io/badge/Status-Work%20In%20Progress-orange)
 
 An end-to-end machine learning application that predicts whether a beauty product is likely to become successful based on historical Sephora product data. The system analyzes pricing, brand performance, product categories, ingredients, and market-positioning features to estimate a product's success probability and identify the factors that contribute most to the prediction.
 
