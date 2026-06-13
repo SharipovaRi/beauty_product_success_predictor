@@ -1,9 +1,23 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from backend.app.schemas import ProductInput, PredictionResponse
-from backend.app.predict_service import predict_product, build_features_for_input
+from backend.app.schemas import (
+    ProductInput,
+    PredictionResponse,
+    ChatRequest,
+    ChatResponse,
+)
+
+from backend.app.predict_service import (
+    predict_product,
+    build_features_for_input,
+)
+
 from backend.app.shap_service import explain_prediction
 
+from backend.app.chatbot_service import (
+    generate_launch_insight,
+    answer_chatbot_question,
+)
 
 app = FastAPI(
     title="AI Beauty Product Success Predictor",
@@ -41,4 +55,21 @@ def predict(product: ProductInput):
     prediction_result["top_positive_drivers"] = positive_drivers
     prediction_result["top_negative_drivers"] = negative_drivers
 
+    prediction_result["ai_launch_insight"] = generate_launch_insight(
+        prediction_result=prediction_result,
+        product_input=product,
+    )
     return prediction_result
+
+# Endpoint to handle answers user questions about prediction results.
+@app.post("/chat", response_model=ChatResponse)
+def chat(request: ChatRequest):
+
+    answer = answer_chatbot_question(
+        question=request.question,
+        context=request.prediction_context,
+    )
+
+    return {
+        "answer": answer
+    }

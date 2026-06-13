@@ -33,4 +33,12 @@ class PredictionResponse(BaseModel):
     prediction: str
     confidence_band: str
     top_positive_drivers: List[Driver]
-    top_negative_drivers: List[Driver]
+    top_negative_drivers: List[Driver]    
+    ai_launch_insight: str
+
+class ChatRequest(BaseModel):
+    question: str
+    prediction_context: dict
+
+class ChatResponse(BaseModel):
+    answer: str
