@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environments
+venv/
+.env/
+
+# Environment variables
+.env
+.env.local
+.env.development
+.env.production
+
+# Logs
+logs/
+*.log
+
+# Model artifacts
+*.pkl
+*.joblib
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Node.js
+node_modules/
+.next/
+out/
+
+# Build files
+dist/
+build/
