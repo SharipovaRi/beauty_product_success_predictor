@@ -13,6 +13,7 @@ venv/
 .env.local
 .env.development
 .env.production
+.env.*
 
 # Logs
 logs/
@@ -41,3 +42,16 @@ out/
 # Build files
 dist/
 build/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Deployment
+.vercel/
+.railway/
+
+# Misc
+*.tmp
+*.temp
