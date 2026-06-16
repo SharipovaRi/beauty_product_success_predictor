@@ -8,6 +8,8 @@ export default function Home() {
   const [brandName, setBrandName] = useState("");
   const [category, setCategory] = useState("");
   const [price, setPrice] = useState("");
+  const [ingredients, setIngredients] = useState("");
+  const [highlights, setHighlights] = useState("");
   const [result, setResult] = useState<PredictionResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [question, setQuestion] = useState("");
@@ -127,8 +129,8 @@ export default function Home() {
     sephora_exclusive: sephoraExclusive ? 1 : 0,
     size: "",
     variation_desc: "",
-    ingredients: "niacinamide, zinc, glycerin, panthenol",
-    highlights: "brightening, oil-control, fragrance-free",
+    ingredients,
+    highlights,
   };
 
   try {
@@ -244,7 +246,7 @@ async function handleContactSubmit() {
 
   return (
     <main className="min-h-screen bg-white p-8">
-      <header className="sticky top-0 z-50 flex items-center bg-transparent py-6 ">
+      <header className="sticky top-0 z-50 flex items-center bg-white/90 py-6 backdrop-blur-md">
         <div className="flex-1 ">
           <h1 className="text-xl font-bold">BeautyLaunch </h1>
         </div>
@@ -352,7 +354,19 @@ async function handleContactSubmit() {
               value={price}
               onChange={(e) => setPrice(e.target.value)}
             />
-          
+            <textarea
+              className="rounded border p-3"
+              placeholder="Ingredients (optional)"
+              value={ingredients}
+              onChange={(e) => setIngredients(e.target.value)}
+            />
+
+            <textarea
+              className="rounded border p-3"
+              placeholder="Product Highlights (optional)"
+              value={highlights}
+              onChange={(e) => setHighlights(e.target.value)}
+            />
           
           <div className="flex gap-8">
 
@@ -634,7 +648,7 @@ async function handleContactSubmit() {
 
         <div className="flex gap-3">
           <input
-            className="flex-1 rounded-xl shadow-sm bg-white p-3"
+            className="flex-1 rounded-xl border border-gray-200 bg-white p-3 shadow-sm outline-none focus:border-black"
             placeholder="Ask about risks, pricing, or improvement strategy..."
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
