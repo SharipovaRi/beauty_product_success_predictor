@@ -8,7 +8,7 @@ genai.configure(
     api_key=os.getenv("GEMINI_API_KEY")
 )
 
-model = genai.GenerativeModel("gemini-2.5-flash")
+model = genai.GenerativeModel("gemini-2.5-flash-lite")
 
 # Convert prediction results and product input into a business recommendation. 
 def generate_launch_insight(prediction_result, product_input):
@@ -96,7 +96,9 @@ def answer_chatbot_question(question, context):
         response = model.generate_content(prompt)
         return response.text
 
-    except Exception:
+    except Exception as e:
+        print("Gemini chatbot failed:")
+        print(e)
 
         return rule_based_answer(
             question,

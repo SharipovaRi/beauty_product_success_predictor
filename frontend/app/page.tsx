@@ -1,14 +1,14 @@
 "use client";
-import { predictProduct, askChatbot} from "../lib/api";
+import { predictProduct, askChatbot, type PredictionResponse } from "../lib/api";
 import { useState } from "react";
-import { Mail, MapPin } from "lucide-react";
+import { Mail, MapPin, User, Bot } from "lucide-react";
 
 export default function Home() {
   const [productName, setProductName] = useState("");
   const [brandName, setBrandName] = useState("");
   const [category, setCategory] = useState("");
   const [price, setPrice] = useState("");
-  const [result, setResult] = useState<Record<string, unknown> | null>(null);
+  const [result, setResult] = useState<PredictionResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [question, setQuestion] = useState("");
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
@@ -42,11 +42,62 @@ export default function Home() {
   impact: number;
   };
 
+  type PredictionResponse = {
+  success_probability: number;
+  prediction: string;
+  confidence_band: string;
+  top_positive_drivers: Driver[];
+  top_negative_drivers: Driver[];
+  ai_launch_insight: string;
+  };
+
   type ChatMessage = {
   role: "user" | "assistant";
   content: string;
   };
   
+  async function sendSuggestedQuestion(
+  suggestedQuestion: string
+) {
+  if (!result) return;
+
+  const userMessage = {
+    role: "user" as const,
+    content: suggestedQuestion,
+  };
+
+  setChatMessages((prev) => [
+    ...prev,
+    userMessage,
+  ]);
+
+  setChatLoading(true);
+
+  try {
+    const data = await askChatbot(
+      suggestedQuestion,
+      result
+    );
+
+    setChatMessages((prev) => [
+      ...prev,
+      {
+        role: "assistant",
+        content: data.answer,
+      },
+    ]);
+
+  } catch (error) {
+
+    console.error(error);
+
+  } finally {
+
+    setChatLoading(false);
+
+  }
+} 
+
   async function handlePredict() {
   if (!productName || !brandName || !category || !price) {
     alert("Please fill in product name, brand name, category, and price.");
@@ -103,9 +154,11 @@ export default function Home() {
 async function handleAskChatbot() {
   if (!result || !question.trim()) return;
 
+  const currentQuestion = question.trim();
+
   const userMessage: ChatMessage = {
     role: "user",
-    content: question,
+    content: currentQuestion,
   };
 
   setChatMessages((prev) => [...prev, userMessage]);
@@ -113,7 +166,7 @@ async function handleAskChatbot() {
   setChatLoading(true);
 
   try {
-    const data = await askChatbot(question, result);
+    const data = await askChatbot(currentQuestion, result);
 
     const assistantMessage: ChatMessage = {
       role: "assistant",
@@ -397,7 +450,7 @@ async function handleContactSubmit() {
             Relative impact score (not a percentage).
           </p>
 
-          {(result.top_positive_drivers as Driver[]).map((driver) => (
+          {result.top_positive_drivers.map((driver) => (
             <div key={driver.feature} className="mb-4">
             <div className="mb-1 flex justify-between text-sm">
               <span className="font-medium">
@@ -430,7 +483,7 @@ async function handleContactSubmit() {
             Relative impact score (not a percentage).
           </p>
 
-          {(result.top_negative_drivers as Driver[]).map((driver) => (
+          {result.top_negative_drivers.map((driver) => (
             <div key={driver.feature} className="mb-4">
               <div className="mb-1 flex justify-between text-sm">
                 <span className="font-medium">
@@ -479,41 +532,101 @@ async function handleContactSubmit() {
       <h2 className="mb-4 text-center text-3xl font-bold">
         Ask BeautyLaunch
       </h2>
-
-      <p className="mb-6 text-center text-gray-700">
-        Ask questions about pricing, positioning, risks, ingredients, or launch strategy.
-      </p>
-
       <p className="mb-6 text-left text-gray-700">
        <b className="text-red-700">DISCLAIMER</b>: The system does not provide medical, dermatology, allergy, or cosmetic safety advice. Model outputs should be interpreted as business/product strategy estimates, not guaranteed product outcomes.
        </p>
-
-      <div className="mx-auto max-w-3xl rounded-2xl border bg-gray-50 p-4">
-        <div className="mb-4 max-h-96 overflow-y-auto space-y-4 pr-2">
+        <div className="mb-6 h-96 overflow-y-auto rounded-2xl border-2 border-gray-200 bg-white p-4">
     
           {chatMessages.map((message, index) => (
             <div
               key={index}
-              className={`flex ${
-                message.role === "user" ? "justify-end" : "justify-start"
+              className={`flex items-start gap-3 ${
+                message.role === "user"
+                  ? "justify-end mb-8"
+                  : "justify-start mb-2"
               }`}
             >
-              <div
-                className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-6 ${
-                  message.role === "user"
-                    ? "bg-black text-white"
-                    : "border bg-white text-gray-700"
-                }`}
-              >
-                <p className="whitespace-pre-line">{message.content}</p>
-              </div>
+            <>
+                {message.role === "assistant" && (
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full border bg-white">
+                    <Bot size={18} />
+                  </div>
+                )}
+
+                <div
+                  className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-6 ${
+                    message.role === "user"
+                      ? "bg-black text-white"
+                      : "border bg-white text-gray-700"
+                  }`}
+                >
+                  <p className="whitespace-pre-line">
+                    {message.content}
+                  </p>
+                </div>
+
+                {message.role === "user" && (
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full border bg-white">
+                    <User size={18} />
+                  </div>
+                )}
+            </>
             </div>
           ))}
 
+          {chatMessages.length === 0 && (
+          <div className="flex h-full items-center justify-center">
+            <div className="max-w-md text-center">
+              <h3 className="mb-2 text-lg font-semibold">
+                BeautyLaunch Assistant
+              </h3>
+
+              <p className="text-sm text-gray-500">
+                Ask questions about pricing, launch strategy,
+                ingredients, category competition, or prediction risks.
+              </p>
+
+              <div className="mt-6 space-y-1 text-sm">
+                <button
+                  onClick={() =>
+                    sendSuggestedQuestion(
+                      "Why is this product considered high risk?"
+                    )
+                  }
+                  className="w-full rounded-xl border p-3 text-gray-500 transition-all duration-200 hover:bg-gray-100 hover:text-black hover:border-gray-400 hover:shadow-sm"
+                >
+                  Why is this product considered high risk?
+                </button>
+
+                <button
+                  onClick={() =>
+                    sendSuggestedQuestion(
+                      "How can I improve the launch potential?"
+                    )
+                  }
+                  className="w-full rounded-xl border p-3 text-gray-500 transition-all duration-200 hover:bg-gray-100 hover:text-black hover:border-gray-400 hover:shadow-sm"
+                >
+                  How can I improve the launch potential?
+                </button>
+
+                <button
+                  onClick={() =>
+                    sendSuggestedQuestion(
+                      "What pricing strategy would you recommend?"
+                    )
+                  }
+                  className="w-full rounded-xl border p-3 text-gray-500 transition-all duration-200 hover:bg-gray-100 hover:text-black hover:border-gray-400 hover:shadow-sm"
+                >
+                  What pricing strategy would you recommend?
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
           {chatLoading && (
             <div className="flex justify-start">
               <div className="rounded-2xl border bg-white px-4 py-3 text-sm text-gray-500">
-                BeautyLaunch AI is thinking...
+                BeautyLaunch is thinking...
               </div>
             </div>
           )}
@@ -521,7 +634,7 @@ async function handleContactSubmit() {
 
         <div className="flex gap-3">
           <input
-            className="flex-1 rounded-xl border bg-white p-3"
+            className="flex-1 rounded-xl shadow-sm bg-white p-3"
             placeholder="Ask about risks, pricing, or improvement strategy..."
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
@@ -535,12 +648,11 @@ async function handleContactSubmit() {
           <button
             onClick={handleAskChatbot}
             disabled={chatLoading}
-            className="rounded-4xl border-2 border-black bg-white px-10 py-2 font-semibold text-black shadow-sm transition hover:-translate-y-0.5 hover:border-gray-500 hover:text-gray-500 hover:shadow-md disabled:opacity-50"
+            className="rounded-4xl bg-white px-10 py-2 font-semibold text-black shadow-sm transition hover:-translate-y-0.5 hover:border-gray-500 hover:text-gray-500 hover:shadow-md disabled:opacity-50"
           >
             Send
           </button>
         </div>
-      </div>
     </div>
   </section>
 )}
@@ -548,30 +660,68 @@ async function handleContactSubmit() {
 {history.length > 0 && (
   <section className="mx-auto mt-10 max-w-5xl">
     <div className="rounded-2xl bg-white p-8 shadow-md">
+
       <h2 className="mb-6 text-center text-3xl font-bold">
         Recent Predictions
       </h2>
 
-      <div className="grid gap-4">
-        {history.map((item, index) => (
-          <div
-            key={`${item.productName}-${index}`}
-            className="flex items-center justify-between rounded-xl border p-4"
-          >
-            <div>
-              <h3 className="font-semibold">{item.productName}</h3>
-              <p className="text-sm text-gray-600">{item.brandName}</p>
-            </div>
+      <div className="grid gap-3">
 
-            <div className="text-right">
-              <p className="font-semibold">
-                {Math.round(item.probability * 100)}%
-              </p>
-              <p className="text-sm text-gray-600">{item.prediction}</p>
-            </div>
-          </div>
-        ))}
+        <div className="overflow-hidden rounded-2xl border border-gray-200">
+
+  <div className="grid grid-cols-3 border-b bg-gray-50 p-4 font-semibold">
+    <div>Product</div>
+    <div>Brand</div>
+    <div className="text-right">Prediction</div>
+  </div>
+
+  {history.map((item, index) => (
+
+    <div
+      key={`${item.productName}-${index}`}
+      className={`grid grid-cols-3 items-center p-4 transition hover:bg-gray-50 ${
+        index !== history.length - 1 ? "border-b" : ""
+      }`}
+    >
+
+      <div>
+        <p className="font-medium">
+          {item.productName}
+        </p>
       </div>
+
+      <div>
+        <p className="text-black">
+          {item.brandName}
+        </p>
+      </div>
+
+      <div className="text-right">
+
+        <p className="font-semibold">
+          {Math.round(item.probability * 100)}%
+        </p>
+
+        <p
+          className={`text-sm ${
+            item.prediction === "High Potential"
+              ? "text-green-600"
+              : item.prediction === "Moderate Potential"
+              ? "text-yellow-600"
+              : "text-red-600"
+          }`}
+        >
+          {item.prediction}
+        </p>
+
+      </div>
+
+    </div>
+
+  ))}
+
+</div>
+  </div>
     </div>
   </section>
 )}
@@ -595,9 +745,9 @@ async function handleContactSubmit() {
 
                   <div>
                     <h3 className="font-semibold">Email</h3>
-                    <p className="text-gray-700">
-                      ritasharipova10@email.com
-                    </p>
+                    <a href="mailto:ritasharipova10@gmail.com" className="text-gray-700">
+                      ritasharipova10@gmail.com
+                    </a>
                   </div>
                 </div>
 
