@@ -23,6 +23,59 @@ type Driver = {
   content: string;
   };
 
+  const featureLabels: Record<string, string> = {
+  brand_success_rate: "Brand Performance",
+  brand_avg_price: "Brand Average Price",
+  category_success_rate: "Category Performance",
+  category_avg_price: "Category Average Price",
+  price_vs_category_avg: "Category Pricing",
+  price_vs_brand_avg: "Brand Pricing",
+  ingredients_text_length: "Ingredient Detail",
+  highlights_text_length: "Marketing Detail",
+  ingredient_count: "Ingredient Diversity",
+  highlight_count: "Marketing Claim Count",
+  popular_ingredient_count: "Popular Ingredient Match",
+  has_child_products: "Product Line Breadth",
+  child_price_range: "Product Family Price Range",
+  limited_edition: "Limited Edition Status",
+  sephora_exclusive: "Sephora Exclusive Status",
+  new: "New Product Status",
+  online_only: "Online Availability",
+  out_of_stock: "Stock Availability",
+  discount_pct: "Discount Level",
+};
+
+function titleCaseFeature(value: string) {
+  return value.replaceAll("_", " ").replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
+function formatFeatureName(feature: string) {
+  if (featureLabels[feature]) {
+    return featureLabels[feature];
+  }
+
+  if (feature.startsWith("brand_name_")) {
+    const brand = feature.replace("brand_name_", "");
+    return `Brand: ${titleCaseFeature(brand)}`;
+  }
+
+  if (feature.startsWith("text_")) {
+    const textValue = feature.replace("text_", "");
+    return `Product Text: ${titleCaseFeature(textValue)}`;
+  }
+
+  if (feature.startsWith("primary_category_")) {
+    const category = feature.replace("primary_category_", "");
+    return `Category: ${titleCaseFeature(category)}`;
+  }
+
+  if (feature.startsWith("secondary_category_")) {
+    const category = feature.replace("secondary_category_", "");
+    return `Subcategory: ${titleCaseFeature(category)}`;
+  }
+
+  return titleCaseFeature(feature);
+}
 export default function Home() {
   const [productName, setProductName] = useState("");
   const [brandName, setBrandName] = useState("");
@@ -196,6 +249,58 @@ export default function Home() {
 
 }
 
+function downloadCSV() {
+  if (!result) return;
+
+  const rows = [
+    ["Section", "Type", "Name", "Value"],
+    ["Product Info", "Product", productName, ""],
+    ["Product Info", "Brand", brandName, ""],
+    ["Product Info", "Category", category, ""],
+    ["Product Info", "Price", price, ""],
+    ["Prediction", "Success Score", "", `${Math.round(result.success_probability * 100)}%`],
+    ["Prediction", "Assessment", "", result.prediction],
+    ["Prediction", "Confidence", "", result.confidence_band],
+    ...result.top_positive_drivers.map((driver) => [
+      "Driver",
+      "Positive",
+      formatFeatureName(driver.feature),
+      driver.impact.toFixed(3),
+    ]),
+    ...result.top_negative_drivers.map((driver) => [
+      "Driver",
+      "Negative",
+      formatFeatureName(driver.feature),
+      driver.impact.toFixed(3),
+    ]),
+    ["Launch Recommendation", "AI Insight", "", result.ai_launch_insight],
+  ];
+
+  const csvContent = rows
+    .map((row) =>
+      row
+        .map((cell) => `"${String(cell).replace(/"/g, '""')}"`)
+        .join(",")
+    )
+    .join("\n");
+
+  const blob = new Blob([csvContent], {
+    type: "text/csv;charset=utf-8;",
+  });
+
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download = `${productName || "beautylaunch"}-analysis.csv`;
+
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+
+  URL.revokeObjectURL(url);
+}
+
 async function handleAskChatbot() {
   if (!result || !question.trim()) return;
 
@@ -360,7 +465,7 @@ async function handleContactSubmit() {
           </p>
           <div className="mt-6 grid gap-5 md:grid-cols-3 ">
             <div
-              className="relative overflow-hidden rounded-xl border-2 border-white shadow-md transition hover:border-gray-300"
+              className="relative overflow-hidden rounded-xl border-2 border-gray-200 shadow-md transition hover:border-gray-300"
               style={{
                 backgroundImage: "url('/images/stripes.jpg')",
                 backgroundSize: "cover",
@@ -378,7 +483,7 @@ async function handleContactSubmit() {
             </div>
 
             <div
-              className="relative overflow-hidden rounded-xl border-2 border-white shadow-md transition hover:border-gray-300"
+              className="relative overflow-hidden rounded-xl border-2 border-gray-200 shadow-md transition hover:border-gray-300"
               style={{
                 backgroundImage: "url('/images/stripes.jpg')",
                 backgroundSize: "cover",
@@ -396,7 +501,7 @@ async function handleContactSubmit() {
             </div>
 
             <div
-              className="relative overflow-hidden rounded-xl border-2 border-white shadow-md transition hover:border-gray-300"
+              className="relative overflow-hidden rounded-xl border-2 border-gray-200 shadow-md transition hover:border-gray-300"
               style={{
                 backgroundImage: "url('/images/stripes.jpg')",
                 backgroundSize: "cover",
@@ -618,7 +723,7 @@ async function handleContactSubmit() {
             <div key={driver.feature} className="mb-4">
             <div className="mb-1 flex justify-between text-sm">
               <span className="font-medium">
-                {driver.feature}
+                {formatFeatureName(driver.feature)}
               </span>
 
               <span className="text-gray-600">
@@ -651,7 +756,7 @@ async function handleContactSubmit() {
             <div key={driver.feature} className="mb-4">
               <div className="mb-1 flex justify-between text-sm">
                 <span className="font-medium">
-                  {driver.feature}
+                  {formatFeatureName(driver.feature)}
                 </span>
 
                 <span className="text-gray-600">
@@ -684,6 +789,14 @@ async function handleContactSubmit() {
           {String(result.ai_launch_insight)}
         </p>
 
+      </div>
+      <div className="mt-6 flex justify-center">
+        <button
+          onClick={downloadCSV}
+          className="mt-6 rounded-4xl border-2 border-black bg-white px-6 py-2 font-semibold text-black shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-gray-500 hover:text-gray-500 hover:shadow-md"
+        >
+          Export Analysis (CSV)
+        </button>
       </div>
 
     </div>
@@ -925,7 +1038,15 @@ async function handleContactSubmit() {
                     </p>
                   </div>
                 </div>
-
+                 <div className="flex justify-center pl-55">
+                    <Image
+                      src="/images/makeup.jpg"
+                      alt="Makeup"
+                      width={260}
+                      height={200}
+                      className="object-contain"
+                    />
+                  </div>
               </div>
             </div>
 

@@ -9,15 +9,81 @@ genai.configure(
 )
 
 model = genai.GenerativeModel("gemini-2.5-flash-lite")
+FEATURE_LABELS = {
+    "brand_success_rate": "Brand Performance",
+    "brand_avg_price": "Brand Average Price",
+    "category_success_rate": "Category Performance",
+    "category_avg_price": "Category Average Price",
+    "price_vs_category_avg": "Category Pricing",
+    "price_vs_brand_avg": "Brand Pricing",
+    "ingredients_text_length": "Ingredient Detail",
+    "highlights_text_length": "Marketing Detail",
+    "ingredient_count": "Ingredient Diversity",
+    "popular_ingredient_count": "Popular Ingredient Match",
+    "has_child_products": "Product Line Breadth",
+    "child_price_range": "Product Family Price Range",
+    "limited_edition": "Limited Edition Status",
+    "sephora_exclusive": "Sephora Exclusive Status",
+    "new": "New Product Status",
+    "online_only": "Online Availability",
+    "out_of_stock": "Stock Availability",
+    "discount_pct": "Discount Level",
+    "highlight_count": "Marketing Claim Count",
+    "price_tier": "Price Tier",
+    "has_sale_price": "Sale Price Status",
+    "discount_amount": "Discount Amount",
+    "value_price_gap": "Value Price Gap",
+    "brand_product_count": "Brand Product Portfolio",
+    "category_product_count": "Category Competition",
+    "category_saturation_score": "Category Saturation",
+    
+}
+def title_case_feature(value):
+    return value.replace("_", " ").title()
+
+
+def format_feature_name(feature):
+    if feature in FEATURE_LABELS:
+        return FEATURE_LABELS[feature]
+
+    if feature.startswith("brand_name_"):
+        brand = feature.replace("brand_name_", "")
+        return f"Brand: {title_case_feature(brand)}"
+
+    if feature.startswith("text_"):
+        text_value = feature.replace("text_", "")
+        return f"Product Text: {title_case_feature(text_value)}"
+
+    if feature.startswith("primary_category_"):
+        category = feature.replace("primary_category_", "")
+        return f"Category: {title_case_feature(category)}"
+
+    if feature.startswith("secondary_category_"):
+        category = feature.replace("secondary_category_", "")
+        return f"Subcategory: {title_case_feature(category)}"
+
+    if feature.startswith("tertiary_category_"):
+        category = feature.replace("tertiary_category_", "")
+        return f"Product Segment: {title_case_feature(category)}"
+
+    return title_case_feature(feature)
 
 # Convert prediction results and product input into a business recommendation. 
 def generate_launch_insight(prediction_result, product_input):
     probability = prediction_result["success_probability"]
     positives = prediction_result.get("top_positive_drivers", [])
     negatives = prediction_result.get("top_negative_drivers", [])
+    
     # Top 3 positive and negative features.
-    positive_features = [item["feature"] for item in positives[:3]]
-    negative_features = [item["feature"] for item in negatives[:3]]
+    positive_features = [
+    format_feature_name(format_feature_name(item["feature"]))
+    for item in positives[:3]
+    ]
+
+    negative_features = [
+    format_feature_name(format_feature_name(item["feature"]))
+    for item in negatives[:3]
+    ]
 
     if probability >= 0.7:
         launch_level = "Strong launch potential"
