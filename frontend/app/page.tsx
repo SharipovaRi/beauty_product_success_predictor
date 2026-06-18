@@ -1,7 +1,27 @@
 "use client";
-import { predictProduct, askChatbot, type PredictionResponse } from "../lib/api";
+import { predictProduct, askChatbot } from "../lib/api";
 import { useState } from "react";
 import { Mail, MapPin, User, Bot } from "lucide-react";
+import Image from "next/image";
+
+type Driver = {
+  feature: string;
+  impact: number;
+  };
+
+  type PredictionResponse = {
+  success_probability: number;
+  prediction: string;
+  confidence_band: string;
+  top_positive_drivers: Driver[];
+  top_negative_drivers: Driver[];
+  ai_launch_insight: string;
+  };
+
+  type ChatMessage = {
+  role: "user" | "assistant";
+  content: string;
+  };
 
 export default function Home() {
   const [productName, setProductName] = useState("");
@@ -23,6 +43,8 @@ export default function Home() {
     prediction: string;
   }[]
   >([]);
+  const [contactSuccess, setContactSuccess] = useState("");
+    const [contactError, setContactError] = useState("");
   /* Categories are based on the dataset */
   const categories = [
   "Skincare",
@@ -38,29 +60,17 @@ export default function Home() {
   const [contactEmail, setContactEmail] = useState("");
   const [contactMessage, setContactMessage] = useState("");
   const [sendingMessage, setSendingMessage] = useState(false);
+  const [productNameError, setProductNameError] = useState("");
+  const [brandNameError, setBrandNameError] = useState("");
+  const [categoryError, setCategoryError] = useState("");
+  const [priceError, setPriceError] = useState("");
+  const [contactNameError, setContactNameError] = useState("");
+  const [contactEmailError, setContactEmailError] = useState("");
+  const [contactMessageError, setContactMessageError] = useState("");
+  const [predictionError, setPredictionError] = useState("");
 
-  type Driver = {
-  feature: string;
-  impact: number;
-  };
-
-  type PredictionResponse = {
-  success_probability: number;
-  prediction: string;
-  confidence_band: string;
-  top_positive_drivers: Driver[];
-  top_negative_drivers: Driver[];
-  ai_launch_insight: string;
-  };
-
-  type ChatMessage = {
-  role: "user" | "assistant";
-  content: string;
-  };
-  
   async function sendSuggestedQuestion(
-  suggestedQuestion: string
-) {
+  suggestedQuestion: string) {
   if (!result) return;
 
   const userMessage = {
@@ -76,9 +86,14 @@ export default function Home() {
   setChatLoading(true);
 
   try {
+    const chatContext = {
+      prediction: result,
+      conversation_history: chatMessages,
+    };
+
     const data = await askChatbot(
       suggestedQuestion,
-      result
+      chatContext
     );
 
     setChatMessages((prev) => [
@@ -101,15 +116,40 @@ export default function Home() {
 } 
 
   async function handlePredict() {
-  if (!productName || !brandName || !category || !price) {
-    alert("Please fill in product name, brand name, category, and price.");
-    return;
-    }
+  let hasError = false;
 
-    if (Number(price) <= 0) {
-      alert("Please enter a valid price.");
+  setProductNameError("");
+  setBrandNameError("");
+  setCategoryError("");
+  setPriceError("");
+  setPredictionError("");
+
+  if (!productName.trim()) {
+    setProductNameError("Please enter a product name.");
+    hasError = true;
+  }
+
+  if (!brandName.trim()) {
+    setBrandNameError("Please enter a brand name.");
+    hasError = true;
+  }
+
+  if (!category.trim()) {
+    setCategoryError("Please select a category.");
+    hasError = true;
+  }
+
+  if (!price.trim()) {
+    setPriceError("Please enter a price.");
+    hasError = true;
+  }
+
+  if (hasError) return;
+
+    if (Number(price) <= 0 || Number.isNaN(Number(price))) {
+      setPriceError("Please enter a valid price.");
       return;
-}
+    }
   setLoading(true);
 
   const payload = {
@@ -147,10 +187,13 @@ export default function Home() {
 ]);
   } catch (error) {
     console.error(error);
-    alert("Prediction failed. Make sure FastAPI is running.");
+    setPredictionError(
+      "Prediction failed. Please verify that the backend service is running."
+    );
   } finally {
     setLoading(false);
   }
+
 }
 
 async function handleAskChatbot() {
@@ -168,7 +211,15 @@ async function handleAskChatbot() {
   setChatLoading(true);
 
   try {
-    const data = await askChatbot(currentQuestion, result);
+    const chatContext = {
+        prediction: result,
+        conversation_history: chatMessages,
+    };
+
+      const data = await askChatbot(
+        currentQuestion,
+        chatContext
+    );
 
     const assistantMessage: ChatMessage = {
       role: "assistant",
@@ -192,15 +243,39 @@ async function handleAskChatbot() {
 }
 
 async function handleContactSubmit() {
+  
+  setContactSuccess("");
+  setContactError("");
 
-  if (
-    !contactName ||
-    !contactEmail ||
-    !contactMessage
-  ) {
-    alert("Please fill out all fields.");
-    return;
-  }
+  let hasError = false;
+
+    setContactNameError("");
+    setContactEmailError("");
+    setContactMessageError("");
+
+    if (!contactName.trim()) {
+      setContactNameError("Please enter your name.");
+      hasError = true;
+    }
+
+    if (!contactEmail.trim()) {
+      setContactEmailError("Please enter your email.");
+      hasError = true;
+    } else if (
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contactEmail)
+    ) {
+      setContactEmailError(
+        "Please enter a valid email address."
+      );
+      hasError = true;
+    }
+
+    if (!contactMessage.trim()) {
+      setContactMessageError("Please enter a message.");
+      hasError = true;
+    }
+
+    if (hasError) return;
 
   setSendingMessage(true);
 
@@ -225,7 +300,9 @@ async function handleContactSubmit() {
       throw new Error();
     }
 
-    alert("Message sent successfully!");
+    setContactSuccess(
+      "Your message has been sent successfully."
+    );
 
     setContactName("");
     setContactEmail("");
@@ -233,8 +310,8 @@ async function handleContactSubmit() {
 
   } catch {
 
-    alert(
-      "Failed to send message."
+    setContactError(
+      "Failed to send message. Please try again later."
     );
 
   } finally {
@@ -282,28 +359,58 @@ async function handleContactSubmit() {
             estimate product success probability.
           </p>
           <div className="mt-6 grid gap-5 md:grid-cols-3 ">
-            <div className="rounded-xl border-2 p-5 shadow-md border-white hover:border-gray-300">
-              <h3 className="mb-2 font-semibold text-red-700">ML Prediction</h3>
-              <p className="text-sm text-gray-700">
-                Predicts success probability using product features, pricing,
-                category, brand, and ingredient signals.
-              </p>
+            <div
+              className="relative overflow-hidden rounded-xl border-2 border-white shadow-md transition hover:border-gray-300"
+              style={{
+                backgroundImage: "url('/images/stripes.jpg')",
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+              }}
+            >
+            <div className="absolute inset-0 bg-white/90" />
+                <div className="relative p-4 pt-6">
+                  <h3 className="mb-2 font-semibold text-red-700"> ML Prediction </h3>
+                  <p className="text-sm font-semibold">
+                    Predicts success probability using product features,
+                    pricing, category, brand, and ingredient signals.
+                  </p>
+              </div>
             </div>
 
-            <div className="rounded-xl border-2 p-5 shadow-md border-white hover:border-gray-300">
-              <h3 className="mb-2 font-semibold text-red-700">Explainability</h3>
-              <p className="text-sm text-gray-700">
-                Shows positive and negative drivers that contributed most to the
-                model prediction.
-              </p>
+            <div
+              className="relative overflow-hidden rounded-xl border-2 border-white shadow-md transition hover:border-gray-300"
+              style={{
+                backgroundImage: "url('/images/stripes.jpg')",
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+              }}
+            >
+            <div className="absolute inset-0 bg-white/90" />
+              <div className="relative p-4 pt-6">
+                <h3 className="mb-2 font-semibold text-red-700">Explainability</h3>
+                <p className="text-sm font-semibold">
+                  Shows positive and negative drivers that contributed most to the
+                  model prediction.
+                </p>
+              </div>
             </div>
 
-            <div className="rounded-xl border-2 p-5 shadow-md border-white hover:border-gray-300">
-              <h3 className="mb-2 font-semibold text-red-700">AI Strategy Insights</h3>
-              <p className="text-sm text-gray-700">
-                Uses AI to translate model results into business-oriented launch
-                recommendations.
-              </p>
+            <div
+              className="relative overflow-hidden rounded-xl border-2 border-white shadow-md transition hover:border-gray-300"
+              style={{
+                backgroundImage: "url('/images/stripes.jpg')",
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+              }}
+            >
+            <div className="absolute inset-0 bg-white/90" />
+                <div className="relative p-4 pt-6">
+                  <h3 className="mb-2 font-semibold text-red-700">AI Strategy Insights</h3>
+                  <p className="text-sm font-semibold">
+                    Uses AI to translate model results into business-oriented launch
+                    recommendations.
+                  </p>
+              </div>
             </div>
           </div>
         </div>
@@ -318,28 +425,49 @@ async function handleContactSubmit() {
           </p>
 
           <div className="grid gap-4 p-10 md:grid-cols-2">
+          <div>
             <input
-              className="rounded border p-3"
+              className={`w-full rounded border p-3 ${
+                productNameError ? "border-red-500" : "border-gray-300"
+              }`}
               placeholder="Product Name"
               value={productName}
               onChange={(e) => setProductName(e.target.value)}
             />
 
+            {productNameError && (
+              <p className="mt-1 text-left text-sm text-red-500">
+                {productNameError}
+              </p>
+            )}
+          </div>
+
+          <div>
             <input
-              className="rounded border p-3"
+              className={`w-full rounded border p-3 ${
+                brandNameError ? "border-red-500" : "border-gray-300"
+              }`}
               placeholder="Brand Name"
               value={brandName}
               onChange={(e) => setBrandName(e.target.value)}
             />
 
+            {brandNameError && (
+              <p className="mt-1 text-left text-sm text-red-500">
+                {brandNameError}
+              </p>
+            )}
+          </div>
+
+          <div>
             <select
-              className="rounded border p-3 "
               value={category}
               onChange={(e) => setCategory(e.target.value)}
+              className={`w-full rounded border p-3 ${
+                categoryError ? "border-red-500" : "border-gray-300"
+              }`}
             >
-              <option value="">
-                Select Category
-              </option>
+              <option value="">Select Category</option>
 
               {categories.map((cat) => (
                 <option key={cat} value={cat}>
@@ -348,37 +476,51 @@ async function handleContactSubmit() {
               ))}
             </select>
 
+            {categoryError && (
+              <p className="mt-1 text-left text-sm text-red-500">
+                {categoryError}
+              </p>
+            )}
+          </div>
+
+          <div>
             <input
-              className="rounded border p-3"
+              className={`w-full rounded border p-3 ${
+                priceError ? "border-red-500" : "border-gray-300"
+              }`}
               placeholder="Price (USD)"
               value={price}
               onChange={(e) => setPrice(e.target.value)}
             />
-            <textarea
-              className="rounded border p-3"
-              placeholder="Ingredients (optional)"
-              value={ingredients}
-              onChange={(e) => setIngredients(e.target.value)}
-            />
 
-            <textarea
-              className="rounded border p-3"
-              placeholder="Product Highlights (optional)"
-              value={highlights}
-              onChange={(e) => setHighlights(e.target.value)}
-            />
-          
-          <div className="flex gap-8">
+            {priceError && (
+              <p className="mt-1 text-left text-sm text-red-500">
+                {priceError}
+              </p>
+            )}
+          </div>
 
+          <textarea
+            className="rounded border border-gray-300 p-3 md:col-span-2"
+            placeholder="Ingredients (optional)"
+            value={ingredients}
+            onChange={(e) => setIngredients(e.target.value)}
+          />
+
+          <textarea
+            className="rounded border border-gray-300 p-3 md:col-span-2"
+            placeholder="Product Highlights (optional)"
+            value={highlights}
+            onChange={(e) => setHighlights(e.target.value)}
+          />
+
+          <div className="flex gap-8 md:col-span-2">
             <label className="flex items-center gap-2">
               <input
                 type="checkbox"
                 checked={limitedEdition}
-                onChange={(e) =>
-                  setLimitedEdition(e.target.checked)
-                }
+                onChange={(e) => setLimitedEdition(e.target.checked)}
               />
-
               <span>Limited Edition</span>
             </label>
 
@@ -386,26 +528,34 @@ async function handleContactSubmit() {
               <input
                 type="checkbox"
                 checked={sephoraExclusive}
-                onChange={(e) =>
-                  setSephoraExclusive(e.target.checked)
-                }
+                onChange={(e) => setSephoraExclusive(e.target.checked)}
               />
-
               <span>Sephora Exclusive</span>
             </label>
-
           </div>
-          </div>
-
+        </div>
 
           <div className="flex justify-center">
             <button
               onClick={handlePredict}
+              disabled={loading}
               className="mt-6 rounded-4xl border-2 border-black bg-white px-6 py-2 font-semibold text-black shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-gray-500 hover:text-gray-500 hover:shadow-md"
             >
-              {loading ? "Analyzing..." : "Predict Success"}
+              {loading ? (
+                <span className="flex items-center gap-2">
+                  <Spinner />
+                  Analyzing...
+                </span>
+              ) : (
+                "Predict Success"
+              )}
             </button>
           </div>
+          {predictionError && (
+          <div className="mt-4 rounded-xl border border-red-200 bg-red-50 p-3 text-center text-sm text-red-700">
+              {predictionError}
+          </div>
+            )}
         </div>
       </section>
 
@@ -639,13 +789,13 @@ async function handleContactSubmit() {
         )}
           {chatLoading && (
             <div className="flex justify-start">
-              <div className="rounded-2xl border bg-white px-4 py-3 text-sm text-gray-500">
+              <div className="flex items-center gap-2 rounded-2xl border bg-white px-4 py-3 text-sm text-gray-500">
+                <Spinner />
                 BeautyLaunch is thinking...
               </div>
             </div>
           )}
         </div>
-
         <div className="flex gap-3">
           <input
             className="flex-1 rounded-xl border border-gray-200 bg-white p-3 shadow-sm outline-none focus:border-black"
@@ -789,43 +939,84 @@ async function handleContactSubmit() {
               <div className="grid gap-4">
 
                 <input
-                  className="rounded-xl border p-3"
+                  className={`rounded-xl border p-3 ${
+                    contactNameError
+                      ? "border-red-500"
+                      : "border-gray-300"
+                  }`}
                   placeholder="Your Name"
                   value={contactName}
-                  onChange={(e) =>
-                    setContactName(e.target.value)
-                  }
+                  onChange={(e) => setContactName(e.target.value)}
                 />
+
+                {contactNameError && (
+                  <p className="text-sm text-red-500">
+                    {contactNameError}
+                  </p>
+                )}
 
                 <input
-                  className="rounded-xl border p-3"
+                  className={`rounded-xl border p-3 ${
+                    contactEmailError
+                      ? "border-red-500"
+                      : "border-gray-300"
+                  }`}
                   placeholder="Your Email"
                   value={contactEmail}
-                  onChange={(e) =>
-                    setContactEmail(e.target.value)
-                  }
+                  onChange={(e) => setContactEmail(e.target.value)}
                 />
+
+                {contactEmailError && (
+                  <p className="text-sm text-red-500">
+                    {contactEmailError}
+                  </p>
+                )}
 
                 <textarea
-                  className="min-h-40 rounded-xl border p-3"
+                  className={`min-h-40 rounded-xl border p-3 ${
+                    contactMessageError
+                      ? "border-red-500"
+                      : "border-gray-300"
+                  }`}
                   placeholder="Your Message"
                   value={contactMessage}
-                  onChange={(e) =>
-                    setContactMessage(e.target.value)
-                  }
+                  onChange={(e) => setContactMessage(e.target.value)}
                 />
 
+                {contactMessageError && (
+                  <p className="text-sm text-red-500">
+                    {contactMessageError}
+                  </p>
+                )}
+
                 <div className="flex justify-center">
-                  <button 
-                    onClick={handleContactSubmit}
-                    disabled={sendingMessage}
-                    className="mt-6 rounded-4xl border-2 border-black bg-white px-6 py-2 font-semibold text-black shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-gray-500 hover:text-gray-500 hover:shadow-md"
-                  >
-                    {sendingMessage
-                      ? "Sending..."
-                      : "Send Message"}
-                  </button>
+                <button 
+                  onClick={handleContactSubmit}
+                  disabled={sendingMessage}
+                  className="mt-6 rounded-4xl border-2 border-black bg-white px-6 py-2 font-semibold text-black shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-gray-500 hover:text-gray-500 hover:shadow-md"
+                >
+                  {sendingMessage ? (
+                    <span className="flex items-center gap-2">
+                      <Spinner />
+                      Sending...
+                    </span>
+                  ) : (
+                    "Send Message"
+                  )}
+                </button>
+              </div>
+
+              {contactSuccess && (
+                <div className="mt-4 rounded-xl border border-green-200 bg-green-50 p-3 text-center text-sm text-green-700">
+                  {contactSuccess}
                 </div>
+              )}
+
+              {contactError && (
+                <div className="mt-4 rounded-xl border border-red-200 bg-red-50 p-3 text-center text-sm text-red-700">
+                  {contactError}
+                </div>
+              )}
               </div>
 
             </div>
@@ -840,5 +1031,11 @@ async function handleContactSubmit() {
         </div>
       </footer>
     </main>
+  );
+}
+
+function Spinner() {
+  return (
+    <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-black border-t-transparent" />
   );
 }

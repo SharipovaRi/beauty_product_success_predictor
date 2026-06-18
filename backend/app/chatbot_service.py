@@ -68,7 +68,13 @@ def generate_launch_insight(prediction_result, product_input):
 def answer_chatbot_question(question, context):
     """
     Answers user questions about a prediction.
+    Supports both:
+    1. direct prediction context
+    2. prediction context with conversation history
     """
+
+    prediction_context = context.get("prediction", context)
+    conversation_history = context.get("conversation_history", [])
 
     prompt = f"""
     You are an AI Beauty Product Strategy Assistant.
@@ -77,22 +83,25 @@ def answer_chatbot_question(question, context):
     for beauty product launches.
 
     Prediction Context:
-    {context}
+    {prediction_context}
 
-    User Question:
+    Previous Conversation:
+    {conversation_history}
+
+    Current User Question:
     {question}
 
     Rules:
-    - Use only the information provided.
-    - Explain prediction drivers.
+    - Use the prediction context and previous conversation when relevant.
+    - Answer the current user question directly.
+    - Explain prediction drivers when useful.
     - Discuss pricing, positioning, branding, category competition, and ingredients.
     - Do not provide medical advice.
     - Do not guarantee product success.
-    - Be concise and professional.
+    - Be concise, professional, and practical.
     """
 
     try:
-
         response = model.generate_content(prompt)
         return response.text
 
@@ -102,38 +111,40 @@ def answer_chatbot_question(question, context):
 
         return rule_based_answer(
             question,
-            context
+            prediction_context
         )
-
+    
 # Fallback rule-based chatbot if Gemini is unavailable.
 def rule_based_answer(question, context):
     """
     Fallback chatbot if Gemini is unavailable.
     """
 
+    prediction_context = context.get("prediction", context)
+
     q = question.lower()
 
-    probability = context.get(
+    probability = prediction_context.get(
         "success_probability",
         "unknown"
     )
 
-    prediction = context.get(
+    prediction = prediction_context.get(
         "prediction",
         "unknown"
     )
 
-    confidence = context.get(
+    confidence = prediction_context.get(
         "confidence_band",
         "unknown"
     )
 
-    positives = context.get(
+    positives = prediction_context.get(
         "top_positive_drivers",
         []
     )
 
-    negatives = context.get(
+    negatives = prediction_context.get(
         "top_negative_drivers",
         []
     )
@@ -148,8 +159,16 @@ def rule_based_answer(question, context):
         for item in negatives[:3]
     ]
 
-    if "why" in q:
+    if "strategy" in q or "recommend" in q or "pricing" in q or "price" in q:
+        return (
+            f"For this product, focus on reducing the strongest risk drivers: "
+            f"{', '.join(negative_features)}. "
+            f"A better launch strategy could include clearer positioning, "
+            f"stronger benefit-focused highlights, competitive pricing, and emphasizing positive drivers such as "
+            f"{', '.join(positive_features)}."
+        )
 
+    if "why" in q:
         return (
             f"The model predicted '{prediction}' "
             f"with success probability {probability}. "
@@ -160,7 +179,6 @@ def rule_based_answer(question, context):
         )
 
     if "improve" in q:
-
         return (
             f"Consider addressing the negative drivers: "
             f"{', '.join(negative_features)}. "
@@ -169,7 +187,6 @@ def rule_based_answer(question, context):
         )
 
     if "risk" in q:
-
         return (
             f"The primary risk signals identified by the model are: "
             f"{', '.join(negative_features)}."
