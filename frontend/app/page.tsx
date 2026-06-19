@@ -1038,12 +1038,12 @@ async function handleContactSubmit() {
                     </p>
                   </div>
                 </div>
-                 <div className="flex justify-center pl-55">
+                 <div className="flex justify-center pl-30">
                     <Image
-                      src="/images/makeup.jpg"
+                      src="/images/makeup_collection.jpg"
                       alt="Makeup"
-                      width={260}
-                      height={200}
+                      width={300}
+                      height={300}
                       className="object-contain"
                     />
                   </div>
