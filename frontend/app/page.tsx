@@ -712,7 +712,7 @@ async function handleContactSubmit() {
 
         <div className="rounded-xl border p-5">
           <h3 className="mb-4 text-xl font-semibold">
-            Positive Drivers
+            Key Success Factors
           </h3>
 
           <p className="mb-4 text-xs italic text-gray-500">
@@ -745,7 +745,7 @@ async function handleContactSubmit() {
 
         <div className="rounded-xl border p-5">
           <h3 className="mb-4 text-xl font-semibold">
-            Negative Drivers
+            Key Risk Factors
           </h3>
           
           <p className="mb-4 text-xs italic text-gray-500">
@@ -782,7 +782,7 @@ async function handleContactSubmit() {
       <div className="mt-8 rounded-xl border p-5">
 
         <h3 className="mb-3 text-xl font-semibold">
-          AI Launch Insight
+          Launch Strategy Summary
         </h3>
 
         <p className="whitespace-pre-line text-gray-700">
@@ -807,7 +807,7 @@ async function handleContactSubmit() {
   <section className="mx-auto mt-10 max-w-5xl">
     <div className="rounded-2xl bg-white p-8 shadow-md">
       <h2 className="mb-4 text-center text-3xl font-bold">
-        Ask BeautyLaunch
+        Launch Strategy Assistant
       </h2>
       <p className="mb-6 text-left text-gray-700">
        <b className="text-red-700">DISCLAIMER</b>: The system does not provide medical, dermatology, allergy, or cosmetic safety advice. Model outputs should be interpreted as business/product strategy estimates, not guaranteed product outcomes.
