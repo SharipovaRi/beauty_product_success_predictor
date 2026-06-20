@@ -428,26 +428,50 @@ async function handleContactSubmit() {
 
   return (
     <main className="min-h-screen bg-white p-8">
-      <header className="sticky top-0 z-50 flex items-center bg-white/90 py-6 backdrop-blur-md">
-        <div className="flex-1 ">
-          <h1 className="text-xl font-bold">BeautyLaunch </h1>
+     <header className="sticky top-0 z-50 bg-white/90 py-4 backdrop-blur-md">
+
+        <div className="flex flex-col items-center gap-4 md:flex-row">
+
+          <div className="hidden md:flex md:flex-1 md:pl-5">
+            <Image
+              src="/images/logo_BeautyLaunch.png"
+              alt="BeautyLaunch"
+              width={210}
+              height={80}
+              priority
+              className="h-auto"
+            />
+          </div>
+
+          <div className="md:hidden">
+            <Image
+              src="/images/logo_BeautyLaunch.png"
+              alt="BeautyLaunch"
+              width={150}
+              height={65}
+              priority
+              className="h-auto"
+            />
+          </div>
+
+          <nav className="flex items-center gap-4 rounded-full border border-gray-200 bg-white px-5 py-3 shadow-sm md:gap-8 md:px-8">
+            <a href="#home" className="text-sm font-semibold hover:text-gray-500">
+              Home
+            </a>
+
+            <a href="#predict" className="text-sm font-semibold hover:text-gray-500">
+              Predict
+            </a>
+
+            <a href="#contact" className="text-sm font-semibold hover:text-gray-500">
+              Contact
+            </a>
+          </nav>
+
+          <div className="hidden md:flex md:flex-1" />
+
         </div>
 
-        <nav className="flex items-center gap-8 rounded-full border border-gray-200 bg-white px-8 py-3 shadow-sm">
-          <a href="#home" className="text-sm font-semibold hover:text-gray-500">
-            Home
-          </a>
-
-          <a href="#predict" className="text-sm font-semibold hover:text-gray-500">
-            Predict
-          </a>
-
-          <a href="#contact" className="text-sm font-semibold hover:text-gray-500">
-            Contact
-          </a>
-        </nav>
-
-        <div className="flex-1"></div>
       </header>
 
       <section id="home" className="mx-auto max-w-5xl pt-10">
