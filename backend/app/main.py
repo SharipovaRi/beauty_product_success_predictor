@@ -1,20 +1,20 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from backend.app.schemas import (
+from app.schemas import (
     ProductInput,
     PredictionResponse,
     ChatRequest,
     ChatResponse,
 )
 
-from backend.app.predict_service import (
+from app.predict_service import (
     predict_product,
     build_features_for_input,
 )
 
-from backend.app.shap_service import explain_prediction
+from app.shap_service import explain_prediction
 
-from backend.app.chatbot_service import (
+from app.chatbot_service import (
     generate_launch_insight,
     answer_chatbot_question,
 )

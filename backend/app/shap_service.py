@@ -1,5 +1,5 @@
 import pandas as pd
-from backend.app.predict_service import pipeline
+from app.predict_service import pipeline
 
 # Function to extract feature names from the preprocessor for SHAP explanations.
 def get_feature_names():
