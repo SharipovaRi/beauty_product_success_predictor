@@ -1,11 +1,11 @@
 fastapi
 uvicorn
+python-dotenv
+google-generativeai
 pandas
 numpy
 scikit-learn
-xgboost
-shap
 joblib
-python-dotenv
-openai
+shap
 pydantic
+python-multipart
