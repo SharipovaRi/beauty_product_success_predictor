@@ -19,9 +19,6 @@ venv/
 logs/
 *.log
 
-# Model artifacts
-*.pkl
-*.joblib
 
 # Jupyter
 .ipynb_checkpoints/
@@ -55,3 +52,12 @@ htmlcov/
 # Misc
 *.tmp
 *.temp
+
+*.pkl
+!backend/models/product_success_pipeline.pkl
+
+data/
+!backend/data/
+!backend/data/processed/
+!backend/data/processed/beauty_products_features.csv
+*.joblib
