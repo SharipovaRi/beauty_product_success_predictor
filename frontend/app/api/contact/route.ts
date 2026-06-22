@@ -1,5 +1,8 @@
 import { Resend } from "resend";
 
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
+  
 const resend = new Resend(
   process.env.RESEND_API_KEY
 );

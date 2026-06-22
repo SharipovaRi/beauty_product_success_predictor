@@ -3,7 +3,7 @@ import pandas as pd
 from pathlib import Path
 
 
-BASE_DIR = Path(__file__).resolve().parents[2]
+BASE_DIR = Path(__file__).resolve().parents[1]
 
 MODEL_PATH = BASE_DIR / "models" / "product_success_pipeline.pkl"
 DATA_PATH = BASE_DIR / "data" / "processed" / "beauty_products_features.csv"
