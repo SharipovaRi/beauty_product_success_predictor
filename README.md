@@ -1,11 +1,11 @@
-# AI Beauty Product Success Predictor
+# AI Beauty Product Success Predictor (Beauty Launch)
 
 An end-to-end machine learning and AI-powered analytics platform that predicts beauty product launch success using historical Sephora product data. The system combines predictive modeling, feature engineering, explainable AI, and conversational analytics to help users evaluate product concepts before launch.
 
 ## Live Demo
 Experience the complete platform, including machine learning predictions, SHAP explainability, AI-generated launch insights, and the Gemini-powered conversational assistant.
 ### Application:
-**Try Beauty Launch:**  
+**Try AI Beauty Product Success Predictor (Beauty Launch):**  
 https://beauty-launch.up.railway.app
 
 ## Highlights
@@ -228,7 +228,7 @@ README.md
 
 ## Project Impact
 
-BeautyLaunch demonstrates the complete machine learning lifecycle, including data preparation, feature engineering, model development, explainability, AI integration, full-stack application development, and deployment.
+AI Beauty Product Success Predictor (Beauty Launch) demonstrates the complete machine learning lifecycle, including data preparation, feature engineering, model development, explainability, AI integration, full-stack application development, and deployment.
 
 The project was designed to simulate a production-style analytics platform capable of supporting data-driven product launch decisions.
 
