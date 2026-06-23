@@ -481,7 +481,7 @@ async function handleContactSubmit() {
           </h1>
 
           <p className="mt-4 text-gray-700">
-            <b>BeautyLaunch</b> is a machine learning application that predicts
+            <b>Beauty Launch</b> is a machine learning application that predicts
             whether a beauty product is likely to succeed based on historical
             Sephora product data. The system analyzes pricing, brand strength,
             product categories, ingredients, and market-positioning signals to
@@ -879,7 +879,7 @@ async function handleContactSubmit() {
           <div className="flex h-full items-center justify-center">
             <div className="max-w-md text-center">
               <h3 className="mb-2 text-lg font-semibold">
-                BeautyLaunch Assistant
+                Beauty Launch Assistant
               </h3>
 
               <p className="text-sm text-gray-500">
@@ -928,7 +928,7 @@ async function handleContactSubmit() {
             <div className="flex justify-start">
               <div className="flex items-center gap-2 rounded-2xl border bg-white px-4 py-3 text-sm text-gray-500">
                 <Spinner />
-                BeautyLaunch is thinking...
+                Beauty Launch is thinking...
               </div>
             </div>
           )}
