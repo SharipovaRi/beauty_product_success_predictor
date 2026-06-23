@@ -1,178 +1,132 @@
 # AI Beauty Product Success Predictor
-![Status](https://img.shields.io/badge/Status-Work%20In%20Progress-orange)
 
-An end-to-end machine learning application that predicts whether a beauty product is likely to become successful based on historical Sephora product data. The system analyzes pricing, brand performance, product categories, ingredients, and market-positioning features to estimate a product's success probability and identify the factors that contribute most to the prediction.
+An end-to-end machine learning and AI-powered analytics platform that predicts beauty product launch success using historical Sephora product data. The system combines predictive modeling, feature engineering, explainable AI, and conversational analytics to help users evaluate product concepts before launch.
+
+## Live Demo
+Experience the complete platform, including machine learning predictions, SHAP explainability, AI-generated launch insights, and the Gemini-powered conversational assistant.
+### Application:
+**Try Beauty Launch:**  
+https://beauty-launch.up.railway.app
+
+## Highlights
+
+* Created an end-to-end machine learning platform that predicts beauty product launch success using historical Sephora product data.
+* Engineered 20+ predictive features spanning brand performance, category competition, pricing benchmarks, ingredient composition, and product portfolio characteristics.
+* Delivered real-time predictions with SHAP explainability, surfacing the top 5 success factors and top 5 risk factors influencing each prediction.
+* Integrated a Gemini-powered conversational assistant to provide transparent prediction analysis and business-oriented launch recommendations.
+* Built and deployed a full-stack application using FastAPI, Next.js, TypeScript, and Railway for real-time product evaluation.
+
+## Project Screenshots
+### Product Input Interface
+Users can evaluate potential beauty product launches by entering product characteristics such as brand, category, pricing, ingredients, product highlights, and market positioning attributes. The application transforms these inputs into engineered features used by the machine learning model.
+<p align="center">
+  <img src="screenshots/prediction_input.png" width="900">
+</p>
+
+### Prediction Results & Explainability
+The platform generates real-time success predictions, including success probability, confidence level, and AI-powered explainability. Users can explore the top 5 success factors and top 5 risk factors influencing each prediction, providing greater transparency into the model's decision-making process.
+
+<p align="center">
+  <img src="screenshots/prediction_results.png" width="900">
+</p>
+
+### AI-Powered Launch Assistant
+A Gemini-powered conversational assistant enables users to interact with prediction results, ask follow-up questions, and receive business-oriented launch recommendations. The assistant combines machine learning outputs and explainability insights to provide actionable product strategy guidance.
+
+<p align="center">
+  <img src="screenshots/ai_assistant.png" width="900">
+</p>
+
+
 
 ## Project Overview
 
-Beauty brands regularly introduce new products, but it can be difficult to know how well a product will perform before it reaches the market. Pricing, category competition, ingredients, brand reputation, and product claims can all influence customer interest and overall performance.
+Beauty brands invest significant resources into product development, manufacturing, inventory, and marketing. However, predicting how a product will perform before launch remains challenging.
+This project uses historical Sephora product data to estimate product success probability based on pricing, category positioning, brand performance, ingredient composition, and market characteristics.
+The platform transforms machine learning predictions into actionable business insights through SHAP explainability and a Gemini-powered conversational assistant.
 
-This project uses historical Sephora product data to build a machine learning model that predicts whether a new product is likely to be successful based on its characteristics. Product success is determined using historical product performance metrics, including customer ratings, review activity, and consumer engagement.
+Users can:
 
-The system analyzes:
+* Predict product launch success probability
+* Explore key factors influencing predictions
+* Analyze product strengths and weaknesses
+* Receive AI-generated launch recommendations
+* Ask follow-up questions through an AI assistant
+* Export prediction reports
+  
+  
+## Key Features
+### Machine Learning Prediction Engine
+* Predicts beauty product launch success probability
+* Provides confidence-level assessments
+* Uses historical Sephora product patterns
+* Supports real-time inference through a web application
 
-* Brand
+### Advanced Feature Engineering
+The platform analyzes:
+* Brand performance
 * Product category
-* Price
-* Ingredients
-* Product claims and highlights
+* Pricing strategy
+* Ingredient composition
+* Product highlights and claims
 * Sephora-exclusive status
 * Limited-edition status
 * Category competition
-* Brand historical performance
-* Ingredient popularity 
+* Product family characteristics
+* Market positioning signals
+  
+### Explainable AI
+* SHAP-based prediction explainability
+* Top 5 positive prediction drivers
+* Top 5 negative prediction drivers
+* Feature contribution analysis
+  
+### AI-Powered Insights
+* Gemini-powered launch strategy assistant
+* Interactive product intelligence chatbot
+* Context-aware recommendation generation
+* Business-focused launch guidance
 
-The model returns:
+### Full-Stack Application
+* FastAPI backend
+* Next.js frontend
+* TypeScript
+* Tailwind CSS
+* Responsive design
+* PDF report generation
+* Contact form integration
 
-* Success probability
-* Predicted outcome
-* Confidence band
-* Top positive prediction factors
-* Top negative prediction factors
-* Local prediction explanations
-
-## Key Features
-### Currently Available 
-* End-to-end machine learning pipeline
-* Real Sephora beauty product dataset
-* Advanced feature engineering
-* Model comparison and selection
-* Prediction explainability
-* FastAPI backend service
-### Planned Features
-* AI-powered product strategy recommendations
-* AI chatbot assistant
-* Interactive Next.js frontend
-* Containerized deployment 
 
 ## Business Problem
 
 Launching a beauty product requires a significant investment in product development, manufacturing, inventory, and marketing. Because of these costs, brands want to understand how a product is likely to perform before committing resources to a launch.
 This project helps evaluate new product concepts by comparing them with historical product patterns. The model identifies characteristics that are commonly associated with successful products and estimates the likelihood that a new product will achieve similar results.
-
 The goal is to provide an additional data point that can support product development and product positioning decisions.
 
 
 ## Dataset
 
-The project uses real beauty product data with columns including:
+The project uses historical Sephora product data containing:
 
-* product_id
-* product_name
-* brand_name
-* loves_count
-* rating
-* reviews
-* ingredients
-* price_usd
-* sale_price_usd
-* limited_edition
-* new
-* online_only
-* out_of_stock
-* sephora_exclusive
-* highlights
-* primary_category
-* secondary_category
-* tertiary_category
-* child_count
-* child_max_price
-* child_min_price
+* Product information and categories
+* Pricing and promotional data
+* Consumer engagement metrics
+* Product ratings and reviews
+* Ingredient lists and marketing claims
+* Brand and market positioning attributes
 
-## Feature Engineering
+### Engineered Features
 
-The feature engineering pipeline transforms raw Sephora product data into model-ready business, pricing, ingredient, brand, category, and text features.
+The platform generates business, pricing, ingredient, category, and brand-level features, including:
 
-### Product-Level Features
-
-These features describe the product itself:
-
-* `ingredient_count`: number of ingredients in the product formula
-* `highlight_count`: number of marketing claims/highlights
-* `product_name_length`: length of the product name
-* `ingredients_text_length`: length of the ingredient list
-* `highlights_text_length`: length of the highlights/claims text
-* `has_variation`: whether the product has variations such as shades or formats
-* `has_size`: whether size information is available
-* `has_child_products`: whether the product belongs to a product family
-*  `child_price_range`: price range across child products
-
-### Pricing Features
-
-These features capture pricing strategy and market positioning:
-
-* `price_tier`: budget, mid-range, premium, or luxury
-* `has_sale_price`: whether the product has a sale price
-* `discount_amount`: difference between regular price and sale price
-* `discount_pct`: percentage discount
-* `value_price_gap`: difference between value price and actual price
-* `price_vs_category_avg`: product price compared to category average
-* `price_vs_brand_avg`: product price compared to brand average
-
-### Ingredient Features
-
-The system tracks popular beauty/skincare ingredients based on common product claims and consumer interest, including:
-
-* niacinamide
-* retinol
-* hyaluronic acid
-* salicylic acid
-* glycolic acid
-* vitamin c
-* ascorbic acid
-* peptides
-* ceramides
-* squalane
-* glycerin
-* panthenol
-* zinc
-* lactic acid
-* azelaic acid
-* centella
-* green tea
-* aloe
-
-Each ingredient is converted into a binary indicator feature, such as:
-
-```
-contains_niacinamide
-contains_retinol
-contains_hyaluronic_acid
-```
-The pipeline also creates `popular_ingredient_count`, which measures how many tracked high-interest ingredients are present in a product.
-
-### Brand Features
-* `brand_product_count`
-* `brand_avg_price`
-* `brand_success_rate`
-* `brand_limited_edition_rate`
-* `brand_sephora_exclusive_rate`
-
-### Category Features
-* `category_product_count`
-* `category_avg_price`
-* `category_success_rate`
-* `category_saturation_score`
-* `category_sephora_exclusive_rate`
-
-### Secondary Category Features
-* `secondary_category_product_count`
-* `secondary_category_avg_price`
-* `secondary_category_success_rate`
-
-### Text Features
-A combined product_text field is created from:
-* product name
-* brand name
-* primary category
-* secondary category
-* tertiary category
-* ingredients
-* highlights
-* variation description
-
-The combined text field is transformed using TF-IDF during model training, allowing the model to learn patterns from product descriptions, ingredient terminology, category information, and marketing claims.
-
+* Brand success metrics
+* Category competition indicators
+* Relative pricing benchmarks
+* Product portfolio characteristics
+* Ingredient popularity signals
+* Marketing claim features
+* TF-IDF text representations
+  
 ## Model Development
 
 The project compares multiple machine learning models before selecting the final model.
@@ -190,11 +144,34 @@ Evaluation metrics:
 * F1-score
 * ROC-AUC
 
-The final model is selected based on cross-validated F1-score.
+The final model was selected based on comparative evaluation across multiple performance metrics.
 
-**Current Best Model**: Logistic Regression
+**Final Model**: Logistic Regression
 
 Although tree-based models were evaluated, Logistic Regression achieved the highest cross-validated F1-score. The model performs well on the sparse, high-dimensional feature space created by TF-IDF text representations and engineered categorical features.
+
+## Model Performance
+
+The final Logistic Regression model was selected based on comparative evaluation across multiple machine learning algorithms and demonstrated the strongest overall performance on the engineered feature set.
+
+| Metric | Score |
+|----------|----------|
+| Accuracy | 73.9% |
+| Precision | 41.2% |
+| Recall | 68.9% |
+| F1 Score | 51.5% |
+| ROC-AUC | 78.8% |
+
+The model achieved strong discriminative performance with a ROC-AUC of 78.8%, indicating effective separation between successful and unsuccessful product launches. Higher recall was prioritized to identify potentially successful products while minimizing missed opportunities.
+
+
+## System Architecture
+
+The platform follows a full-stack architecture that combines machine learning inference, explainable AI, and conversational analytics. User inputs are processed through a Next.js frontend and FastAPI backend, where feature engineering, model inference, SHAP explainability, and Gemini-powered insights are orchestrated to generate actionable product launch recommendations.
+
+<p align="center">
+  <img src="screenshots/system_architecture.png" width="900">
+</p>
 
 ## Tech Stack
 ### Data & Machine Learning
@@ -202,6 +179,7 @@ Although tree-based models were evaluated, Logistic Regression achieved the high
 * Pandas
 * NumPy
 * Scikit-Learn
+* SHAP
 * TF-IDF
 * Logistic Regression
 * Random Forest
@@ -211,32 +189,48 @@ Although tree-based models were evaluated, Logistic Regression achieved the high
 * Pydantic
 * Uvicorn
 * Joblib
-### Frontend (Planned)
+### Frontend
 * Next.js
 * React
 * TypeScript
-### Deployment (Planned)
-* Docker
+* Tailwind CSS
+### AI Integration
+* Google Gemini API
+### Deployment 
 * Railway 
+* Git
+* GitHub
+  
+## Repository Structure
 
-## Current Status
-This project is currently under active development.
+```text
+backend/
+    app/              # FastAPI application, prediction service, SHAP service, Gemini chatbot
+    data/             # Raw and processed product data
+    models/           # Trained machine learning pipeline
+    requirements.txt  # Backend dependencies
 
-### Completed:
+frontend/
+    app/              # Next.js application pages and API routes
+    components/       # Reusable React components
+    lib/              # Frontend API utilities
+    public/images/    # Static images and branding assets
 
-* Data cleaning pipeline
-* Feature engineering pipeline
-* Model comparison
-* Final model training
-* FastAPI prediction endpoint
-* Local prediction explanations
+src/
+    preprocessing/    # Data cleaning scripts
+    features/         # Feature engineering pipeline
+    models/           # Model training and selection scripts
 
-### In progress:
+reports/              # Model evaluation reports and metrics
+screenshots/          # README screenshots
+README.md
+```
 
-* AI launch insight generator
-* AI product strategy chatbot
-* Next.js frontend
-* Deployment
+## Project Impact
+
+BeautyLaunch demonstrates the complete machine learning lifecycle, including data preparation, feature engineering, model development, explainability, AI integration, full-stack application development, and deployment.
+
+The project was designed to simulate a production-style analytics platform capable of supporting data-driven product launch decisions.
 
 ## Disclaimer
 
